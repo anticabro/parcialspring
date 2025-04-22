@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Resultado - Saber Pro</title>
+    <!-- Tailwind CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- FontAwesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: #f4f6f9;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .navbar {
+            background-color: #003087;
+        }
+        .navbar-brand, .nav-link {
+            color: #ffffff !important;
+        }
+        .nav-link:hover {
+            color: #ff6200 !important;
+        }
+        .dropdown-menu {
+            background-color: #003087;
+            border: 1px solid #ff6200;
+        }
+        .dropdown-item {
+            color: #ffffff;
+        }
+        .dropdown-item:hover {
+            background-color: #ff6200;
+            color: #ffffff;
+        }
+        .card {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .form-label {
+            color: #003087;
+            font-weight: 600;
+        }
+        .form-control, .form-select {
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 8px;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #ff6200;
+            box-shadow: 0 0 0 3px rgba(255, 98, 0, 0.2);
+            outline: none;
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #ff6200, #ff8c4b);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #e55a00, #ff6200);
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(255, 98, 0, 0.3);
+        }
+        .btn-secondary {
+            background: linear-gradient(45deg, #6b7280, #9ca3af);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+        .btn-secondary:hover {
+            background: linear-gradient(45deg, #4b5563, #6b7280);
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+        }
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .footer {
+            background-color: #003087;
+            color: #ffffff;
+            padding: 1.5rem 0;
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+<!-- Navegación -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container mx-auto px-4">
+        <a class="navbar-brand text-lg font-bold" href="#">ICFES - Informes Saber Pro</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ml-auto space-x-4">
+                <li class="nav-item"><a class="nav-link" href="/estudiantes">Estudiantes</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/resultados-pruebas">Resultados</a></li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Reportes</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/reportes/todos">Informe Completo</a></li>
+                        <li><a class="dropdown-item" href="/reportes/ranking">Ranking</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Contenido -->
+<div class="container mx-auto px-4 py-8">
+    <div class="card p-6 max-w-4xl mx-auto">
+        <h2 class="text-2xl font-semibold text-center mb-6 text-[#003087]" th:text="${resultadoPrueba.id != null} ? 'Editar Resultado' : 'Nuevo Resultado'"></h2>
+
+        <!-- CAMPO PARA PEGAR DATOS DE EXCEL -->
+        <div class="mb-6">
+            <label for="excelInput" class="form-label block text-sm">Pegar datos desde Excel</label>
+            <textarea id="excelInput" class="form-control w-full p-2" rows="3" placeholder="Registro	Puntaje Global	Comunicación Escrita	Razonamiento Cuantitativo	Lectura Crítica	Competencias Ciudadanas	Inglés	Formulación Proyectos	Pensamiento Científico	Diseño Software"></textarea>
+            <p class="text-xs text-gray-500 mt-1">Pega una fila de Excel separada por TAB. Orden exacto: Número Registro, Puntaje Global, Comunicación Escrita, Razonamiento Cuantitativo, Lectura Crítica, Competencias Ciudadanas, Inglés, Formulación Proyectos, Pensamiento Científico, Diseño Software</p>
+        </div>
+
+        <form th:action="@{/resultados-pruebas/guardar}" th:object="${resultadoPrueba}" method="post">
+            <div th:if="${resultadoPrueba.id != null}">
+                <input type="hidden" th:field="*{id}" />
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="mb-4">
+                    <label for="idEstudiante" class="form-label block text-sm">Estudiante</label>
+                    <select class="form-select w-full p-2" id="idEstudiante" th:field="*{idEstudiante}" required>
+                        <option value="">Seleccione un estudiante</option>
+                        <option th:each="estudiante : ${estudiantes}" th:value="${estudiante.id}" th:text="${estudiante.primerNombre} + ' ' + ${estudiante.primerApellido}"></option>
+                    </select>
+                </div>
+                <div class="mb-4"><label for="numeroRegistro" class="form-label block text-sm">Número Registro</label><input type="text" class="form-control w-full p-2" id="numeroRegistro" th:field="*{numeroRegistro}" required></div>
+                <div class="mb-4"><label for="puntaje" class="form-label block text-sm">Puntaje Global</label><input type="number" class="form-control w-full p-2" id="puntaje" th:field="*{puntaje}" required min="0" max="300"></div>
+                <div class="mb-4"><label for="comunicacionEscrita" class="form-label block text-sm">Comunicación Escrita</label><input type="number" class="form-control w-full p-2" id="comunicacionEscrita" th:field="*{comunicacionEscrita}" required min="0" max="300"></div>
+                <div class="mb-4"><label for="razonamientoCuantitativo" class="form-label block text-sm">Razonamiento Cuantitativo</label><input type="number" class="form-control w-full p-2" id="razonamientoCuantitativo" th:field="*{razonamientoCuantitativo}" required min="0" max="300"></div>
+                <div class="mb-4"><label for="lecturaCritica" class="form-label block text-sm">Lectura Crítica</label><input type="number" class="form-control w-full p-2" id="lecturaCritica" th:field="*{lecturaCritica}" required min="0" max="300"></div>
+                <div class="mb-4"><label for="competenciasCiudadanas" class="form-label block text-sm">Competencias Ciudadanas</label><input type="number" class="form-control w-full p-2" id="competenciasCiudadanas" th:field="*{competenciasCiudadanas}" required min="0" max="300"></div>
+                <div class="mb-4"><label for="ingles" class="form-label block text-sm">Inglés</label><input type="number" class="form-control w-full p-2" id="ingles" th:field="*{ingles}" required min="0" max="300"></div>
+                <div class="mb-4"><label for="formulacionProyectos" class="form-label block text-sm">Formulación de Proyectos</label><input type="number" class="form-control w-full p-2" id="formulacionProyectos" th:field="*{formulacionProyectos}" required min="0" max="300"></div>
+                <div class="mb-4"><label for="pensamientoCientifico" class="form-label block text-sm">Pensamiento Científico</label><input type="number" class="form-control w-full p-2" id="pensamientoCientifico" th:field="*{pensamientoCientifico}" required min="0" max="300"></div>
+                <div class="mb-4"><label for="disenoSoftware" class="form-label block text-sm">Diseño de Software</label><input type="number" class="form-control w-full p-2" id="disenoSoftware" th:field="*{disenoSoftware}" required min="0" max="300"></div>
+            </div>
+
+            <div class="button-group mt-6">
+                <button type="submit" class="btn-primary"><i class="fas fa-save mr-2"></i>Guardar</button>
+                <a th:href="@{/resultados-pruebas}" class="btn-secondary"><i class="fas fa-times mr-2"></i>Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="container mx-auto px-4 text-center">
+        <p class="text-sm">© 2025 Instituto Colombiano para la Evaluación de la Educación - ICFES. Todos los derechos reservados.</p>
+        <p class="text-sm">Calle 17 Nro. 3 - 40, Bogotá D.C., Colombia | Línea Nacional Gratuita: 018000-110858</p>
+    </div>
+</footer>
+
+<!-- Script para pegar datos desde Excel -->
+<script>
+    document.getElementById('excelInput').addEventListener('input', function () {
+        const input = this.value.trim();
+        if (!input) return;
+        const values = input.split('\t');
+
+        const fieldIds = [
+            'numeroRegistro',
+            'puntaje',
+            'comunicacionEscrita',
+            'razonamientoCuantitativo',
+            'lecturaCritica',
+            'competenciasCiudadanas',
+            'ingles',
+            'formulacionProyectos',
+            'pensamientoCientifico',
+            'disenoSoftware'
+        ];
+
+        fieldIds.forEach((id, i) => {
+            const field = document.getElementById(id);
+            if (field && values[i] !== undefined) {
+                field.value = values[i].trim();
+            }
+        });
+    });
+</script>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
